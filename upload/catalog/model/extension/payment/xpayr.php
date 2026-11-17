@@ -1,7 +1,7 @@
 <?php
 class ModelExtensionPaymentXpayr extends Model {
     public function getMethod($address, $total) {
-        if (!$this->config->get('payment_xpayr_status')) {
+        if (!$this->config->get('payment_xpayr_status') || trim((string) $this->config->get('payment_xpayr_webhook_secret')) === '') {
             return array();
         }
 

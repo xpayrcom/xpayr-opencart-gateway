@@ -108,7 +108,13 @@ class ControllerExtensionPaymentXpayr extends Controller
         }
 
         $secret = trim((string) $this->config->get('payment_xpayr_webhook_secret'));
-        if ($secret) {
+        if ($secret === '') {
+			// Fail closed: never accept an unsigned webhook.
+			$this->log->write('[XPAYR] Webhook rejected: no webhook secret configured');
+			$this->jsonResponse(503, array('ok' => false, 'error' => 'webhook_secret_not_configured'));
+			return;
+		}
+		{
             $header_sig = isset($this->request->server['HTTP_X_XPAYR_SIGNATURE']) ? (string) $this->request->server['HTTP_X_XPAYR_SIGNATURE'] : '';
             if (!$header_sig) {
                 $this->jsonResponse(401, array('ok' => false, 'error' => 'missing_signature'));
